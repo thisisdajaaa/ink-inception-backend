@@ -66,6 +66,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.utils.middlewares.LoggingMiddleware",
+    "core.utils.middlewares.ExceptionMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -173,7 +175,6 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.AnonRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {"anon": "50/minute"},
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
-    "EXCEPTION_HANDLER": "core.utils.exceptions.exceptions.custom_exception_handler",
 }
 
 SIMPLE_JWT = {

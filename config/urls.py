@@ -27,8 +27,8 @@ schema_view = get_schema_view(
         default_version="v1",
         description="API Documentation for Alerto backend",
         terms_of_service="",
-        contact=openapi.Contact(email="alts.devs@gmail.com"),
-        license=openapi.License(name="BSD License"),
+        contact=openapi.Contact(email="adannanthony@gmail.com"),
+        license=openapi.License(name="MIU License"),
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
@@ -36,7 +36,8 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    path(f"api/v{settings.API_VERSION}/auth/", include("core.v1.users.urls")),
+    # path(f"api/v{settings.API_VERSION}/auth/", include("core.v1.users.urls")),
+    path(f"api/v{settings.API_VERSION}/users/", include("core.v1.users.urls")),
     path(f"api/v{settings.API_VERSION}/blogs/", include("core.v1.blogs.urls")),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
