@@ -1,4 +1,4 @@
-from rest_framework.response import Response
+from django.http import JsonResponse
 
 from ..exceptions import AlreadyExistsException, NotFoundException, ValidationException
 
@@ -14,9 +14,9 @@ class ExceptionMiddleware:
         except Exception as e:
             return self.process_exception(request, e)
 
-    def process_exception(self, request, exception):
+    def process_exception(self, _, exception):
         if isinstance(exception, NotFoundException):
-            return Response(
+            return JsonResponse(
                 {
                     "status": 404,
                     "data": {},
@@ -27,7 +27,7 @@ class ExceptionMiddleware:
                 status=404,
             )
         elif isinstance(exception, AlreadyExistsException):
-            return Response(
+            return JsonResponse(
                 {
                     "status": 409,
                     "data": {},
@@ -38,7 +38,7 @@ class ExceptionMiddleware:
                 status=409,
             )
         elif isinstance(exception, ValidationException):
-            return Response(
+            return JsonResponse(
                 {
                     "status": 400,
                     "data": {},
@@ -49,7 +49,8 @@ class ExceptionMiddleware:
                 status=400,
             )
         else:
-            return Response(
+            print(exception)
+            return JsonResponse(
                 {
                     "status": 500,
                     "data": {},

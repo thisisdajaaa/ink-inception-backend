@@ -27,3 +27,17 @@ class CustomRenderer(renderers.JSONRenderer):
         }
 
         return super().render(formatted_data, accepted_media_type, renderer_context)
+
+
+def formatPaginatedData(details):
+    list, total, num_pages, current_page = details
+
+    return {
+        "list": list,
+        "pagination": {
+            "total": total,
+            "num_pages": num_pages,
+            "current_page": current_page,
+            "count": len(list),
+        },
+    }

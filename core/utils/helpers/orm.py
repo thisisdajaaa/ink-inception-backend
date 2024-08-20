@@ -1,10 +1,5 @@
-from typing import Type
-
-from django.db import models
-
-
 class BaseRepository:
-    def __init__(self, model: Type[models.Model]):
+    def __init__(self, model):
         self.model = model
 
     def find_by_id(self, record_id):
@@ -19,11 +14,9 @@ class BaseRepository:
 
     def delete(self, record_id):
         record = self.find_by_id(record_id)
-
         if record:
             record.delete()
             return True
-
         return False
 
     def find_all(self, **filters):

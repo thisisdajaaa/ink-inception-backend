@@ -37,6 +37,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     # path(f"api/v{settings.API_VERSION}/auth/", include("core.v1.users.urls")),
+    # TODO: follow from rest_framework.routers import SimpleRouter
     path(f"api/v{settings.API_VERSION}/users/", include("core.v1.users.urls")),
     path(f"api/v{settings.API_VERSION}/blogs/", include("core.v1.blogs.urls")),
     re_path(

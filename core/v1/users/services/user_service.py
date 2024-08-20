@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from injector import inject
 
 from ....utils.exceptions import NotFoundException, ValidationException
 from ..repositories import UserRepository
@@ -11,8 +12,9 @@ from ..serializers import (
 
 
 class UserService:
-    def __init__(self):
-        self.user_repository = UserRepository()
+    @inject
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
 
     def get_users(self, request):
         page = request.query_params.get("page", 1)
