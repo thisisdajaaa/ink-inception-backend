@@ -10,17 +10,34 @@ class CustomRenderer(renderers.JSONRenderer):
             status_code.HTTP_200_OK, status_code.HTTP_300_MULTIPLE_CHOICES
         )
 
-        main_data = data.get("list", data)
-        pagination = data.get("pagination", {})
-
         formatted_data = {
             "status": status,
-            "data": main_data,
+            "data": data if success else {},
             "success": success,
             "error": {},
         }
 
-        if pagination:
+        if not success:
+            exception = getattr(response, "data", {})
+            if isinstance(exception, dict) and "detail" in exception:
+                error_message = exception["detail"]
+                if isinstance(error_message, str):
+                    formatted_data["error"] = {"message": error_message}
+                elif isinstance(error_message, list) and error_message:
+                    formatted_data["error"] = {"messages": error_message}
+                else:
+                    formatted_data["error"] = {"detail": error_message}
+            else:
+                formatted_data["error"] = exception
+
+        if "list" in data:
+            formatted_data["data"] = data.get("list")
+            pagination = {
+                "total": data.get("total", len(data.get("list", []))),
+                "num_pages": data.get("num_pages", 1),
+                "current_page": data.get("current_page", 1),
+                "count": len(data.get("list", [])),
+            }
             formatted_data["pagination"] = pagination
 
         return super().render(formatted_data, accepted_media_type, renderer_context)

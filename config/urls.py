@@ -36,6 +36,10 @@ schema_view = get_schema_view(
 urlpatterns = [
     path(f"api/v{settings.API_VERSION}/", include("core.v1.users.urls")),
     path(f"api/v{settings.API_VERSION}/", include("core.v1.blogs.urls")),
+    path(
+        f"api/v{settings.API_VERSION}/",
+        include("core.v1.authentication.urls"),
+    ),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),
