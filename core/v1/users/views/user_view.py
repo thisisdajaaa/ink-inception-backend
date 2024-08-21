@@ -1,6 +1,6 @@
 from injector import Injector
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -12,7 +12,7 @@ injector = Injector([AppModule()])
 
 
 class UserView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     renderer_classes = [CustomRenderer]
 
     def __init__(self, **kwargs):

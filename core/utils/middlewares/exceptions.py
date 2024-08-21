@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
 
 from ..exceptions import AlreadyExistsException, NotFoundException, ValidationException
 
@@ -15,7 +16,22 @@ class ExceptionMiddleware:
         except Exception as e:
             return self.process_exception(request, e)
 
-    def process_exception(self, request, exception):
+    def process_exception(self, _, exception):
+        if isinstance(exception, AuthenticationFailed):
+            print("asd")
+            return JsonResponse(
+                {
+                    "status": status.HTTP_401_UNAUTHORIZED,
+                    "data": {},
+                    "pagination": {},
+                    "success": False,
+                    "error": {
+                        "message": "Authentication failed",
+                        "details": str(exception),
+                    },
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
         if isinstance(exception, NotFoundException):
             return JsonResponse(
                 {

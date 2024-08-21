@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
+from django.utils import timezone
 from injector import inject
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from ....utils.exceptions import ValidationException
@@ -23,7 +23,7 @@ class AuthService:
     def register_user(self, user_data):
         serializer = UserRegistrationSerializer(data=user_data)
         if serializer.is_valid():
-            user = self.user_service.create_user(serializer.validated_data)
+            user = serializer.save()
             return UserResponseSerializer(user).data
         else:
             raise ValidationException(detail=serializer.errors)
@@ -35,8 +35,12 @@ class AuthService:
                 username=serializer.validated_data["username"],
                 password=serializer.validated_data["password"],
             )
+
             if user:
+                user.last_login = timezone.now()
+                user.save(update_fields=["last_login"])
                 refresh = RefreshToken.for_user(user)
+
                 return TokenSerializer(
                     {"refresh": str(refresh), "access": str(refresh.access_token)}
                 ).data
@@ -46,11 +50,3 @@ class AuthService:
                 )
         else:
             raise ValidationException(detail=serializer.errors)
-
-    def logout_user(self, refresh_token):
-        try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return {"detail": "Successfully logged out."}
-        except (TokenError, InvalidToken) as e:
-            raise ValidationException(detail={"non_field_errors": [str(e)]})

@@ -20,6 +20,5 @@ class UserLoginView(APIView):
         self.auth_service = injector.get(AuthService)
 
     def post(self, request):
-        print("asd")
         data = self.auth_service.login_user(request.data)
         return Response(data, status=status.HTTP_200_OK)
