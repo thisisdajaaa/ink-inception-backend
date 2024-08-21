@@ -66,6 +66,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.utils.middlewares.LoggingMiddleware",
+    "core.utils.middlewares.ExceptionMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -141,11 +143,6 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 #   CORS
 if not env.bool("DJANGO_CORS_ALLOW_ALL_ORIGINS", default=False):
     CORS_ALLOW_ALL_ORIGINS = False
@@ -173,7 +170,6 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.AnonRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {"anon": "50/minute"},
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
-    "EXCEPTION_HANDLER": "core.utils.exceptions.exceptions.custom_exception_handler",
 }
 
 SIMPLE_JWT = {
