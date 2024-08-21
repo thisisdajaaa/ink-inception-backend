@@ -19,7 +19,6 @@ from django.conf import settings
 from django.urls import include, path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -31,15 +30,12 @@ schema_view = get_schema_view(
         license=openapi.License(name="MIU License"),
     ),
     public=True,
-    permission_classes=[permissions.AllowAny],
 )
 
 
 urlpatterns = [
-    # path(f"api/v{settings.API_VERSION}/auth/", include("core.v1.users.urls")),
-    # TODO: follow from rest_framework.routers import SimpleRouter
-    path(f"api/v{settings.API_VERSION}/users/", include("core.v1.users.urls")),
-    path(f"api/v{settings.API_VERSION}/blogs/", include("core.v1.blogs.urls")),
+    path(f"api/v{settings.API_VERSION}/", include("core.v1.users.urls")),
+    path(f"api/v{settings.API_VERSION}/", include("core.v1.blogs.urls")),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),

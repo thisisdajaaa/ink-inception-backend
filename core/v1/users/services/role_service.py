@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from injector import inject
 
@@ -31,38 +30,35 @@ class RoleService:
             page_obj.number,
         )
 
-    def get_role(self, role_id):
+    def __find_role_by_id(self, role_id):
         try:
-            role = self.role_repository.get(pk=role_id)
-        except ObjectDoesNotExist:
-            raise NotFoundException("Role not found")
+            role = self.role_repository.find_by_id(role_id)
+            return role
+        except Exception:
+            raise NotFoundException("Role not found.")
 
+    def get_role(self, role_id):
+        role = self.__find_role_by_id(role_id)
         return RoleResponseSerializer(role).data
 
     def create_role(self, role_data):
         serializer = RoleCreateRequestSerializer(data=role_data)
 
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
+            role = serializer.save()
+            return RoleResponseSerializer(role).data
+        raise ValidationException(detail=serializer.errors)
+
+    def update_role(self, role_id, role_data, partial=False):
+        role = self.__find_role_by_id(role_id)
+        serializer = RoleUpdateRequestSerializer(role, data=role_data, partial=partial)
+
+        if serializer.is_valid():
             role = serializer.save()
             return RoleResponseSerializer(role).data
         else:
-            raise ValidationException(
-                "Invalid role details provided!", errors=serializer.errors
-            )
-
-    def update_role(self, role_id, role_data):
-        try:
-            role = self.role_repository.get(pk=role_id)
-        except ObjectDoesNotExist:
-            raise NotFoundException("Role not found")
-        serializer = RoleUpdateRequestSerializer(role, data=role_data)
-        if serializer.is_valid(raise_exception=True):
-            role = serializer.save()
-            return RoleResponseSerializer(role).data
+            raise ValidationException(detail=serializer.errors)
 
     def delete_role(self, role_id):
-        try:
-            role = self.role_repository.get(pk=role_id)
-            role.delete()
-        except ObjectDoesNotExist:
-            raise NotFoundException("Role not found")
+        role = self.__find_role_by_id(role_id)
+        role.delete()

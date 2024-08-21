@@ -25,7 +25,6 @@ class UserView(APIView):
             return Response(user, status=status.HTTP_200_OK)
         else:
             details = self.user_service.get_users(request)
-            print(details)
 
             data = formatPaginatedData(details)
 
@@ -35,8 +34,8 @@ class UserView(APIView):
         data = self.user_service.create_user(request.data)
         return Response(data, status=status.HTTP_201_CREATED)
 
-    def put(self, request, user_id):
-        data = self.user_service.update_user(user_id, request.data)
+    def patch(self, request, user_id):
+        data = self.user_service.update_user(user_id, request.data, partial=True)
         return Response(data, status=status.HTTP_200_OK)
 
     def delete(self, _, user_id):

@@ -5,10 +5,10 @@ from ....utils.helpers.orm import BaseRepository
 from ..models import Role
 
 
-class RoleRepository(BaseRepository):
+class ProfileRepository(BaseRepository):
     @inject
     def __init__(self, model: Role):
         super().__init__(model)
 
-    def exists(self, role_id):
-        return self.model.objects.filter(id=role_id).exists()
+    def find_profile_by_user(self, user_id):
+        return self.model.objects.get(user__id=user_id)

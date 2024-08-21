@@ -25,8 +25,6 @@ class RoleView(APIView):
             return Response(role, status=status.HTTP_200_OK)
         else:
             details = self.role_service.get_roles(request)
-            print(details)
-
             data = formatPaginatedData(details)
 
             return Response(data, status=status.HTTP_200_OK)
@@ -35,8 +33,8 @@ class RoleView(APIView):
         data = self.role_service.create_role(request.data)
         return Response(data, status=status.HTTP_201_CREATED)
 
-    def put(self, request, role_id):
-        data = self.role_service.update_role(role_id, request.data)
+    def patch(self, request, role_id):
+        data = self.role_service.update_role(role_id, request.data, partial=True)
         return Response(data, status=status.HTTP_200_OK)
 
     def delete(self, _, role_id):

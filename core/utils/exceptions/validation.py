@@ -1,4 +1,3 @@
 class ValidationException(Exception):
-    def __init__(self, message, errors=None):
-        super().__init__(message)
-        self.errors = errors or {}
+    def __init__(self, detail=None):
+        self.detail = detail or {"non_field_errors": ["Invalid input."]}

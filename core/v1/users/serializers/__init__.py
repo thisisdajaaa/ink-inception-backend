@@ -1,4 +1,8 @@
-from .profile_serializer import ProfileSerializer
+from .profile_serializer import (
+    ProfileCreateRequestSerializer,
+    ProfileResponseSerializer,
+    ProfileUpdateRequestSerializer,
+)
 from .role_serializer import (
     RoleCreateRequestSerializer,
     RoleResponseSerializer,

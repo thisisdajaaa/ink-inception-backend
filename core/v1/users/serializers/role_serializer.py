@@ -13,6 +13,7 @@ class RoleCreateRequestSerializer(serializers.ModelSerializer):
 class RoleUpdateRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
+        fields = ["name", "description"]
 
 
 class RoleResponseSerializer(serializers.ModelSerializer):

@@ -1,43 +1,40 @@
 from rest_framework import renderers
+from rest_framework import status as status_code
 
 
 class CustomRenderer(renderers.JSONRenderer):
     def render(self, data, accepted_media_type=None, renderer_context=None):
         response = renderer_context["response"] if renderer_context else None
         status = response.status_code if response else None
-        success = status in range(200, 300)
+        success = status in range(
+            status_code.HTTP_200_OK, status_code.HTTP_300_MULTIPLE_CHOICES
+        )
 
-        # Handling pagination and data extraction generically
-        pagination = data.pop("pagination", {})
-        if "count" not in pagination:
-            # Assume the main data is the remaining after popping pagination, or it's directly in 'data'
-            main_data = (
-                data if isinstance(data, list) else [data]
-            )  # Ensure main_data is always a list
-            pagination["count"] = len(main_data)
-        else:
-            main_data = list(data.values())[0] if data else []
+        main_data = data.get("list", data)
+        pagination = data.get("pagination", {})
 
         formatted_data = {
             "status": status,
             "data": main_data,
-            "pagination": pagination,
             "success": success,
             "error": {},
         }
+
+        if pagination:
+            formatted_data["pagination"] = pagination
 
         return super().render(formatted_data, accepted_media_type, renderer_context)
 
 
 def formatPaginatedData(details):
-    list, total, num_pages, current_page = details
+    list_data, total, num_pages, current_page = details
 
     return {
-        "list": list,
+        "list": list_data,
         "pagination": {
             "total": total,
             "num_pages": num_pages,
             "current_page": current_page,
-            "count": len(list),
+            "count": len(list_data),
         },
     }
