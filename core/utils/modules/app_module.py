@@ -1,5 +1,6 @@
 from injector import Module
 
+from .authentication_module import AuthenticationModule
 from .profile_module import ProfileModule
 from .role_module import RoleModule
 from .user_module import UserModule
@@ -10,3 +11,4 @@ class AppModule(Module):
         binder.install(UserModule())
         binder.install(RoleModule())
         binder.install(ProfileModule())
+        binder.install(AuthenticationModule())
