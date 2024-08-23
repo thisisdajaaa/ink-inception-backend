@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "django_celery_beat",
     "drf_yasg",
+    "storages",
 ]
 
 PROJECT_APPS = [
@@ -101,11 +102,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "inkdb",
-        "USER": "inkadmin",
-        "PASSWORD": "securepassword",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": env.str("DJANGO_POSTGRES_NAME", "testdb"),
+        "USER": env.str("DJANGO_POSTGRES_USER", "testuser"),
+        "PASSWORD": env.str("DJANGO_POSTGRES_PASSWORD", "password"),
+        "HOST": env.str("DJANGO_POSTGRES_HOST", "localhost"),
+        "PORT": env.str("DJANGO_POSTGRES_PORT", "5432"),
     }
 }
 
@@ -139,13 +140,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 #   CORS
 if not env.bool("DJANGO_CORS_ALLOW_ALL_ORIGINS", default=False):
@@ -268,3 +262,21 @@ SWAGGER_SETTINGS = {
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
     }
 }
+
+
+# ___________S3______________________
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
+STATIC_URL = "/static/"
+STATICFILES_LOCATION = "static"
+STATICFILES_STORAGE = "core.utils.storage.StaticS3Boto3Storage"
+
+MEDIA_URL = "/media/"
+DEFAULT_FILE_STORAGE = "core.utils.storage.S3MediaStorage"
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+
+AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_URL")
+MINIO_ACCESS_URL = os.getenv("MINIO_ACCESS_URL")

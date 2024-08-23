@@ -17,13 +17,13 @@ class ProfileModule(Module):
     @provider
     @singleton
     def provide_profile_repository(
-        self, role_model: Type[Profile]
+        self, blog_model: Type[Profile]
     ) -> ProfileRepository:
-        return ProfileRepository(model=role_model)
+        return ProfileRepository(model=blog_model)
 
     @provider
     @singleton
-    def provide_role_service(
+    def provide_blog_service(
         self, profile_repository: ProfileRepository, user_repository: UserRepository
     ) -> ProfileService:
         return ProfileService(
