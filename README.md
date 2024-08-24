@@ -190,7 +190,7 @@ AWS_S3_ENDPOINT_URL=https://s3.amazonaws.com
    - You can deploy your code to the EC2 instance using scp or by setting up a CI/CD pipeline with GitHub Actions (see the next section).
 
 ### Setting up CI/CD with GitHub Actions
-1. **Create GitHub Secrets
+1. **Create GitHub Secrets**
    Store your sensitive information like SSH key, EC2 IP, and environment variables as GitHub Secrets:
 
    - EC2_SSH_KEY
