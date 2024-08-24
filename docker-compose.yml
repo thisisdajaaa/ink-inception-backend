@@ -36,6 +36,33 @@ services:
       - 9000:9000
       - 9001:9001
 
+  web:
+    build: .
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 2
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+    depends_on:
+      - db
+      - redis
+    expose:
+      - "8000"
+
+  nginx:
+    build: ./devops/nginx
+    ports:
+      - "80:80"
+    volumes:
+      - static_volume:/usr/share/nginx/html/static
+      - media_volume:/usr/share/nginx/html/media
+    depends_on:
+      - web
+
 volumes:
   postgres_data:
   minio_data:
+  static_volume:
+  media_volume:
