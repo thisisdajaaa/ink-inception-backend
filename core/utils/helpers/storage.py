@@ -2,19 +2,19 @@ from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 
 
-class StaticS3Boto3Storage(S3Boto3Storage):
+class S3BaseStorage(S3Boto3Storage):
+    def url(self, name, parameters=None, expire=None, http_method=None):
+        url = super().url(
+            name, parameters=parameters, expire=expire, http_method=http_method
+        )
+        if self.custom_domain:
+            url = url.replace(self.endpoint_url, self.custom_domain)
+        return url
+
+
+class S3StaticStorage(S3BaseStorage):
     location = settings.STATICFILES_LOCATION
 
-    def __init__(self, *args, **kwargs):
-        if settings.MINIO_ACCESS_URL:
-            self.secure_urls = False
-            self.custom_domain = settings.MINIO_ACCESS_URL
-        super(StaticS3Boto3Storage, self).__init__(*args, **kwargs)
 
-
-class S3MediaStorage(S3Boto3Storage):
-    def __init__(self, *args, **kwargs):
-        if settings.MINIO_ACCESS_URL:
-            self.secure_urls = False
-            self.custom_domain = settings.MINIO_ACCESS_URL
-        super(S3MediaStorage, self).__init__(*args, **kwargs)
+class S3MediaStorage(S3BaseStorage):
+    pass

@@ -24,6 +24,8 @@ from . import env
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+PRODUCTION = os.getenv("PRODUCTION") == "True"
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -267,16 +269,28 @@ SWAGGER_SETTINGS = {
 # ___________S3______________________
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
+# Base settings for S3
+
+
+if os.getenv("PRODUCTION") == "False":
+    AWS_ACCESS_KEY_ID = os.getenv("MINIO_ACCESS_KEY_ID", "minioaccesskey")
+    AWS_SECRET_ACCESS_KEY = os.getenv("MINIO_SECRET_ACCESS_KEY", "miniosecretkey")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("MINIO_STORAGE_BUCKET_NAME", "my-local-bucket")
+    AWS_S3_ENDPOINT_URL = os.getenv("MINIO_ENDPOINT_URL", "http://minio:9000")
+    AWS_S3_CUSTOM_DOMAIN = None
+    AWS_S3_USE_SSL = os.getenv("MINIO_USE_SSL", False)
+else:
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_S3_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_S3_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_S3_STORAGE_BUCKET_NAME")
+    AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL")
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    AWS_S3_USE_SSL = os.getenv("AWS_S3_USE_SSL") == "True"
+
+# Configuring storage backends
 STATIC_URL = "/static/"
 STATICFILES_LOCATION = "static"
-STATICFILES_STORAGE = "core.utils.storage.StaticS3Boto3Storage"
+STATICFILES_STORAGE = "core.utils.helpers.storage.S3StaticStorage"
 
 MEDIA_URL = "/media/"
-DEFAULT_FILE_STORAGE = "core.utils.storage.S3MediaStorage"
-
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-
-AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_URL")
-MINIO_ACCESS_URL = os.getenv("MINIO_ACCESS_URL")
+DEFAULT_FILE_STORAGE = "core.utils.helpers.storage.S3MediaStorage"

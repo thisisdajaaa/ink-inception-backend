@@ -1,12 +1,19 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from ..models import Blog
 
+User = get_user_model()
+
 
 class BlogCreateRequestSerializer(serializers.ModelSerializer):
+    author = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True
+    )
+
     class Meta:
         model = Blog
-        fields = ["title", "content", "main_image"]
+        fields = ["title", "content", "main_image", "author"]
         extra_kwargs = {"title": {"required": True}, "content": {"required": True}}
 
     def create(self, validated_data):

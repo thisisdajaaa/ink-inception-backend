@@ -128,3 +128,5 @@ dmypy.json
 # Pyre typ
 
 .DS_Store
+
+minio_data
