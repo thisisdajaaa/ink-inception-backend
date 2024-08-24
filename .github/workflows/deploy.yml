@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,30 +17,26 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install dependencies locally
+      - name: Install dependencies
         run: |
           python -m venv env
           source env/bin/activate
           pip install -r requirements.txt
 
-      - name: Ensure remote directory exists
+      - name: Create SSH key file
         run: |
-          ssh -i ${{ secrets.EC2_SSH_KEY }} -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} "mkdir -p /home/ubuntu/ink-inception-backend"
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2_key.pem
+          chmod 600 /tmp/ec2_key.pem
 
       - name: Copy files to EC2
         run: |
-          scp -i ${{ secrets.EC2_SSH_KEY }} -o StrictHostKeyChecking=no -r ./* ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/ink-inception-backend
+          scp -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no -r * ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/ink-inception-backend
 
       - name: SSH into EC2 and run deployment scripts
         run: |
-          ssh -i ${{ secrets.EC2_SSH_KEY }} -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          ssh -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
           cd /home/ubuntu/ink-inception-backend
-          # Ensure virtual environment is activated
-          if [ ! -d "env" ]; then
-            python3 -m venv env
-          fi
           source env/bin/activate
           pip install -r requirements.txt
-          # Restart the application using PM2
-          pm2 restart ink-inception-backend || pm2 start gunicorn --name ink-inception-backend --interpreter python3 -- gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+          pm2 restart ink-inception-backend
           EOF
