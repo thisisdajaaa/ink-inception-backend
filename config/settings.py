@@ -24,6 +24,8 @@ from . import env
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+PRODUCTION = os.getenv("PRODUCTION") == "True"
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "django_celery_beat",
     "drf_yasg",
+    "storages",
 ]
 
 PROJECT_APPS = [
@@ -101,11 +104,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "inkdb",
-        "USER": "inkadmin",
-        "PASSWORD": "securepassword",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": env.str("DJANGO_POSTGRES_NAME", "testdb"),
+        "USER": env.str("DJANGO_POSTGRES_USER", "testuser"),
+        "PASSWORD": env.str("DJANGO_POSTGRES_PASSWORD", "password"),
+        "HOST": env.str("DJANGO_POSTGRES_HOST", "localhost"),
+        "PORT": env.str("DJANGO_POSTGRES_PORT", "5432"),
     }
 }
 
@@ -139,13 +142,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 #   CORS
 if not env.bool("DJANGO_CORS_ALLOW_ALL_ORIGINS", default=False):
@@ -268,3 +264,33 @@ SWAGGER_SETTINGS = {
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
     }
 }
+
+
+# ___________S3______________________
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
+# Base settings for S3
+
+
+if os.getenv("PRODUCTION") == "False":
+    AWS_ACCESS_KEY_ID = os.getenv("MINIO_ACCESS_KEY_ID", "minioaccesskey")
+    AWS_SECRET_ACCESS_KEY = os.getenv("MINIO_SECRET_ACCESS_KEY", "miniosecretkey")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("MINIO_STORAGE_BUCKET_NAME", "my-local-bucket")
+    AWS_S3_ENDPOINT_URL = os.getenv("MINIO_ENDPOINT_URL", "http://minio:9000")
+    AWS_S3_CUSTOM_DOMAIN = None
+    AWS_S3_USE_SSL = os.getenv("MINIO_USE_SSL", False)
+else:
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_S3_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_S3_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_S3_STORAGE_BUCKET_NAME")
+    AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL")
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    AWS_S3_USE_SSL = os.getenv("AWS_S3_USE_SSL") == "True"
+
+# Configuring storage backends
+STATIC_URL = "/static/"
+STATICFILES_LOCATION = "static"
+STATICFILES_STORAGE = "core.utils.helpers.storage.S3StaticStorage"
+
+MEDIA_URL = "/media/"
+DEFAULT_FILE_STORAGE = "core.utils.helpers.storage.S3MediaStorage"

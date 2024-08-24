@@ -18,7 +18,6 @@ class ExceptionMiddleware:
 
     def process_exception(self, _, exception):
         if isinstance(exception, AuthenticationFailed):
-            print("asd")
             return JsonResponse(
                 {
                     "status": status.HTTP_401_UNAUTHORIZED,
