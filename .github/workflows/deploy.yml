@@ -26,11 +26,15 @@ jobs:
       - name: Create SSH key file
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2_key.pem
-          chmod 600 /tmp/ec2_key.pem
+          chmod 400 /tmp/ec2_key.pem
+
+      - name: Ensure remote directory exists
+        run: |
+          ssh -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} "mkdir -p /home/ubuntu/ink-inception-backend"
 
       - name: Copy files to EC2
         run: |
-          scp -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no -r * ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/ink-inception-backend
+          rsync -avz -e "ssh -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no" --exclude 'env/' --exclude 'venv/' --exclude '.git/' . ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/ink-inception-backend
 
       - name: SSH into EC2 and run deployment scripts
         run: |
